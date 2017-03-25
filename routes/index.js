@@ -22,4 +22,7 @@ module.exports = router;
 function findNearbyProcedureData(procedure, zip, radius) {
     // find zip codes nearby
     nearbyZips = zipcodes.radius(zip, radius);
+
+    // TODO finish
+    return nearbyZips;
 }
