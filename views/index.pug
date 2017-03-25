@@ -15,7 +15,8 @@ block content
             p #{zipcode}
         if {procedure}
             p #{procedure}
-
+    div(id='gMap')
 
 block scripts
     script(src='js/map.js')
+    script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC4E-nwaTt1FIhhqjUT_DsKHv0PGHuDCF0&callback=initMap')
