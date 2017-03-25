@@ -15,7 +15,7 @@ function addMarker(procedure) {
     var address = procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
     console.log(address);
     geocoder.geocode( { 'address': address }, function(results, status) {
-        if (status == 'OK') {
+        if (status === 'OK') {
             var marker = new google.maps.Marker({
                 position: results[0].geometry.location,
                 map: map,
@@ -55,12 +55,22 @@ $('#input-zipcode')
 
 function doSearch(){
     // TODO data validation
+    var zipcode = $('#input-zipcode').val();
+
+    // update the map to the zipcode where they searched from
+    geocoder.geocode( { 'address': zipcode }, function(results, status) {
+        if (status === 'OK') {
+            map.panTo(results[0].geometry.location);
+        } else {
+            console.error('Geocode error', status);
+        }
+    });
 
     // fire off an ajax request to get the procedure data
     $.getJSON({
             url: "/procedures",
             data: {
-                zipcode: $('#input-zipcode').val(),
+                zipcode: zipcode,
                 procedure: $('#input-procedure').val()
             }
         })
@@ -92,6 +102,8 @@ function drawProcedureData(data){
     // draw in sidebar
     // TODO
     // or do a bar chart
+    var barGraph = new BarGraph("bar-graph");
+    barGraph.updateVis(data);
 }
 
 
@@ -216,3 +228,93 @@ $("#input-procedure")
     })
     .val(null)
     .trigger('change');
+
+
+/**
+ * Creates a bar graph.
+ * @param {string} container ID (no #) of an element to render this in.
+ */
+function BarGraph(container){
+    this.container = container;
+
+    this.initVis();
+}
+
+BarGraph.prototype.initVis = function() {
+    var vis = this;
+
+    vis.valueLabelWidth = 60; // space reserved for value labels (right)
+    vis.barHeight = 20; // height of one bar
+    vis.barLabelWidth = 240; // space reserved for bar labels
+    vis.barLabelPadding = 5; // padding between bar and bar labels (left)
+    vis.gridLabelHeight = 18; // space reserved for gridline labels
+    vis.gridChartOffset = 3; // space between start of grid and first bar
+    vis.maxBarWidth = 100; // width of the bar with the max value
+
+
+    // accessor functions
+    vis.barLabel = function(d) { return d['provider_name'].replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});; };
+    vis.barValue = function(d) { return parseFloat(d['average_total_payments']); };
+
+
+    // scales
+    vis.yScale = d3.scale.ordinal();
+    vis.y = function(d, i) { return vis.yScale(i); };
+    vis.yText = function(d, i) { return vis.y(d, i) + vis.yScale.rangeBand() / 2; };
+    vis.x = d3.scale.linear();
+    // svg container element
+    vis.chart = d3.select('#' + vis.container).append("svg");
+
+    // bar labels
+    vis.labelsContainer = vis.chart.append('g')
+      .attr('transform', 'translate(' + (vis.barLabelWidth - vis.barLabelPadding) + ',' + (vis.gridLabelHeight + vis.gridChartOffset) + ')');
+
+    // bars
+    vis.barsContainer = vis.chart.append('g')
+      .attr('transform', 'translate(' + vis.barLabelWidth + ',' + (vis.gridLabelHeight + vis.gridChartOffset) + ')');
+
+}
+
+BarGraph.prototype.updateVis = function(data) {
+    var vis = this;
+
+    var sortedData = data.sort(function(a, b) {
+      return d3.ascending(vis.barValue(a), vis.barValue(b));
+    });
+
+    // update svg
+    vis.chart
+        .attr('width', vis.maxBarWidth + vis.barLabelWidth + vis.valueLabelWidth)
+        .attr('height', vis.gridLabelHeight + vis.gridChartOffset + sortedData.length * vis.barHeight);
+
+    // update scales
+    vis.yScale.domain(d3.range(0, sortedData.length)).rangeBands([0, sortedData.length * vis.barHeight]);
+    vis.x.domain([0, d3.max(sortedData, vis.barValue)]).range([0, vis.maxBarWidth]);
+
+    // bar labels
+    vis.labelsContainer.selectAll('text').data(sortedData).enter().append('text')
+      .attr('y', vis.yText)
+      .attr('stroke', 'none')
+      .attr('fill', 'black')
+      .attr("dy", ".35em") // vertical-align: middle
+      .attr('text-anchor', 'end')
+      .text(vis.barLabel);
+
+  // draw bars
+  vis.barsContainer.selectAll("rect").data(sortedData).enter().append("rect")
+    .attr('y', vis.y)
+    .attr('height', vis.yScale.rangeBand())
+    .attr('width', function(d) { return vis.x(vis.barValue(d)); })
+    .attr('stroke', 'white')
+    .attr('fill', 'steelblue');
+  // bar value labels
+  vis.barsContainer.selectAll("text").data(sortedData).enter().append("text")
+    .attr("x", function(d) { return vis.x(vis.barValue(d)); })
+    .attr("y", vis.yText)
+    .attr("dx", 3) // padding-left
+    .attr("dy", ".35em") // vertical-align: middle
+    .attr("text-anchor", "start") // text-align: right
+    .attr("fill", "black")
+    .attr("stroke", "none")
+    .text(function(d) { return d3.round(vis.barValue(d), 2); });
+}

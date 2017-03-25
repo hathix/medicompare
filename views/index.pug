@@ -19,14 +19,17 @@ block content
             p #{procedure}
 
         div(id='row')
-            div(class='col-sm-8 col-md-9')
+            div(class='col-sm-12 col-md-6')
                 div(id='gMap', style="width:100%;height:400px;")
-            div(class='col-sm-4 col-md-3')
-                div(class='list-group' id='hospital-list')
+            div(class='col-sm-12 col-md-6')
+                //- div(class='list-group' id='hospital-list')
+                div(id='bar-graph')
 
 block scripts
+    script(src='https://d3js.org/d3.v3.min.js')
     script(src='js/map.js')
     script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC7a7shPDQoiNuP07AfygW9PRaAEwX66ck&callback=initMap')
+    
 
             //- 
             //- 
