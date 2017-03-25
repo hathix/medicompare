@@ -5,8 +5,15 @@ var zipcodes = require('zipcodes');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'My app' });
+  res.render('index', { title: 'Medicompare' });
 });
+
+router.get('/search', function(req, res, next) {
+	var zipcode = req.query['zipcode'];
+	var procedure = req.query['procedure'];
+    console.log(findNearbyProcedureData(procedure, zipcode, 10));
+	res.render('index', { title: 'Medicompare', zipcode: zipcode, procedure: procedure });
+})
 
 module.exports = router;
 
@@ -22,4 +29,5 @@ module.exports = router;
 function findNearbyProcedureData(procedure, zip, radius) {
     // find zip codes nearby
     nearbyZips = zipcodes.radius(zip, radius);
+    return nearbyZips;
 }

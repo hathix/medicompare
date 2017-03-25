@@ -1,14 +1,19 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  form(class='form-inline')
-    div(class='form-group')
-      label(class='sr-only', for='procedure') Procedure
-      input(type='procedure', class='form-control', id='procedure', placeholder='Medical Procedure')
-    div(class='form-group')
-      label(class='sr-only', for='zip') Zip Code
-      input(type='zip', class='form-control', id='zip', placeholder='Zip Code')
-    button(class='btn btn-default') Discover
+  h1(class='text-center align-center') #{title}
+  div(class='row')
+    form(class='' action='/search', method='GET')
+      div(class='form-group col-sm-5 text-right')
+        label(class='sr-only', for='procedure') Procedure
+        input(type='procedure', class='form-control', id='procedure', name='procedure', placeholder='Medical Procedure')
+      div(class='form-group col-sm-5 text-left')
+        label(class='sr-only', for='zip') Zip Code
+        input(type='zipcode', class='form-control', id='zipcode', name='zipcode', placeholder='Zip Code')
+      button(class='btn btn-default glyphicon glyphicon-search col-sm-2 text-left' type='submit')
+  if {zipcode}
+    p #{zipcode}
+  if {procedure}
+    p #{procedure}
+
 
