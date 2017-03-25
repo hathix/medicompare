@@ -1,5 +1,5 @@
 function initMap() {
-    var mapProp = {
+	var mapProp = {
         center: new google.maps.LatLng(-40, 75),
         zoom: 5
     };
