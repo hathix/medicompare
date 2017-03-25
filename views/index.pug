@@ -1,19 +1,21 @@
 extends layout
 
 block content
-    h1(class='text-center align-center') Medicompare
-    div(class='row')
-        div(class='form-group col-sm-5 text-right')
-            label(class='sr-only', for='procedure') Procedure
-            input(type='procedure', class='form-control', id='procedure', name='procedure', placeholder='Medical Procedure')
-        div(class='form-group col-sm-5 text-left')
-            label(class='sr-only', for='zip') Zip Code
-            input(type='zipcode', class='form-control', id='zipcode', name='zipcode', placeholder='Zip Code')
-        button(class='btn btn-default glyphicon glyphicon-search col-sm-2 text-left')
-    if {zipcode}
-        p #{zipcode}
-    if {procedure}
-        p #{procedure}
-    div(id='gMap')
-    script(src='/js/map.js')
-    script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC4E-nwaTt1FIhhqjUT_DsKHv0PGHuDCF0&callback=initMap')
+    div(class='container')
+        h1(class='text-center align-center') Medicompare
+        div(class='row')
+            div(class='form-group col-sm-5 text-right')
+                label(class='sr-only', for='input-procedure') Procedure
+                select(class='form-control', id='input-procedure', name='input-procedure', placeholder='Medical Procedure')        
+            div(class='form-group col-sm-5 text-left')
+                label(class='sr-only', for='zip') Zip Code
+                input(type='zipcode', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code')
+            button(class='btn btn-default glyphicon glyphicon-search col-sm-2 text-left')
+        if {zipcode}
+            p #{zipcode}
+        if {procedure}
+            p #{procedure}
+
+
+block scripts
+    script(src='js/map.js')
