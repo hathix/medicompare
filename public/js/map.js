@@ -1,5 +1,5 @@
 function initMap() {
-	var mapProp = {
+    var mapProp = {
         center: new google.maps.LatLng(-40, 75),
         zoom: 5
     };
@@ -20,7 +20,8 @@ $('#search-submit')
                 }
             })
             .done(function(data) {
-                console.log("data", data);
+                // these are the nearby treatments
+                console.log(data);
             })
             .fail(function(error) {
                 console.error(error);
