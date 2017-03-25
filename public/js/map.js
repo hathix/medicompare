@@ -5,7 +5,7 @@ var geocoder;
 function initMap() {
 	var mapProp = {
         center: new google.maps.LatLng(42.342104, -71.065755),
-        zoom: 15
+        zoom: 10
     };
     map = new google.maps.Map(document.getElementById("gMap"), mapProp);
     geocoder = new google.maps.Geocoder();
@@ -20,11 +20,20 @@ function addMarker(procedure) {
                 position: results[0].geometry.location,
                 map: map,
                 title: procedure.provider_name,
-                icon: {
-                    url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
-                    labelOrigin: new google.maps.Point(25, 40)
-                }
+                // icon: {
+                //     url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
+                //     labelOrigin: new google.maps.Point(25, 40)
+                // }
             });
+
+            var infoWindow = new google.maps.InfoWindow({
+                // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
+                content: "hi"
+            });
+
+            marker.addListener('click', function(){
+                infoWindow.open(map, marker);
+            })
         } else {
             console.error('Geocode error', status);
         }
@@ -57,15 +66,33 @@ function doSearch(){
         })
         .done(function(data) {
             // these are the nearby treatments
-            data.forEach(function(procedure){
-                addMarker(procedure);
-            })
+            drawProcedureData(data);
         })
         .fail(function(error) {
             console.error(error);
         });
 }
 
+/**
+ * Given procedure data, draws it on the map and in the sidebar.
+ */
+function drawProcedureData(data){
+    // sort procedures by cost
+    data.sort(function(a,b){
+        return a.average_total_payments - b.average_total_payments;
+    });
+    // attach a rank to them (for the map's purposes)
+    // TODO
+
+    // draw markers on map
+    data.forEach(function(procedure){
+        addMarker(procedure);
+    });
+
+    // draw in sidebar
+    // TODO
+    // or do a bar chart
+}
 
 
 // set up procedure code search
