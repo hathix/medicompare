@@ -26,10 +26,10 @@ function addMarker(procedure, color) {
                 }
             });
             markers.push(marker);
-
+            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: $' + procedure.average_total_payments + '</div>' + '</div>';
             var infoWindow = new google.maps.InfoWindow({
                 // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
-                content: "hi"
+                content: contentString
             });
 
             marker.addListener('click', function(){
@@ -59,6 +59,25 @@ $('#input-zipcode')
             }
             return true;
         });
+
+        // fire off an ajax request to get the procedure data
+        $.getJSON({
+                url: "/procedures",
+                data: {
+                    zipcode: $('#input-zipcode').val(),
+                    procedure: $('#input-procedure').val()
+                }
+            })
+            .done(function(data) {
+                // these are the nearby treatments
+                console.log(data);
+                data.forEach(function(procedure){
+                    addMarker(procedure);
+                });
+            })
+            .fail(function(error) {
+                console.error(error);
+            });
 
 function doSearch(){
     // TODO data validation
