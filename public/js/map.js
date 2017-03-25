@@ -1,5 +1,6 @@
 // create map view
 var map;
+var geocoder;
 
 function initMap() {
 	var mapProp = {
@@ -7,13 +8,13 @@ function initMap() {
         zoom: 15
     };
     map = new google.maps.Map(document.getElementById("gMap"), mapProp);
+    geocoder = new google.maps.Geocoder();
 };
 
-var geocoder = new google.maps.Geocoder();
-
-// TODO: function to get lat/long from Google Geocoding Service
 function addMarker(procedure) {
-    geocoder.geocode( { 'address': procedure.street_address }, function(results, status) {
+    var address = procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
+    console.log(address);
+    geocoder.geocode( { 'address': address }, function(results, status) {
         if (status == 'OK') {
             var marker = new google.maps.Marker({
                 position: results[0].geometry.location,
@@ -25,7 +26,7 @@ function addMarker(procedure) {
                 }
             });
         } else {
-            alert('Geocode was not successful for the following reason: ' + status);
+            console.error('Geocode error', status);
         }
     });
 }
@@ -75,7 +76,9 @@ function doSearch(){
         })
         .done(function(data) {
             // these are the nearby treatments
-            console.log(data);
+            data.forEach(function(procedure){
+                addMarker(procedure);
+            })
         })
         .fail(function(error) {
             console.error(error);
