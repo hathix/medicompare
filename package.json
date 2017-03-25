@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "babyparse": "^0.4.6",
     "body-parser": "~1.16.0",
     "bootstrap-sass": "^3.3.7",
     "cookie-parser": "~1.4.3",

@@ -2,6 +2,7 @@
 var sqlite3 = require('sqlite3').verbose();
 var fs = require('fs');
 var papaparse = require('papaparse');
+var baby = require('babyparse');
 
 
 // initialize the database
@@ -16,7 +17,7 @@ useNullAsDefault: true
 
 // create database
 knex.schema.createTableIfNotExists('procedures', function (table) {
-  table.increments();
+  table.increments('id');
   table.string('drg_definition');
   table.string('provider_id');
   table.string('provider_name');
@@ -34,69 +35,48 @@ knex.schema.createTableIfNotExists('procedures', function (table) {
     console.error(error);
 });
 
+fs.readFile('inpatient-costs.csv', function(err, data) {
+    // load & parse the whole file into memory
+    var parsed = baby.parse(data.toString(), {
+        header: true
+    });
 
-// set up the csv reader
-// TODO using the mini csv, switch to using the full one
-var readStream = fs.createReadStream('inpatient-costs.csv');
-papaparse.parse(readStream, {
-    header: true,
-    step: function(row) {
-        // JSON object of each row
-        // e.g.
-          //       { 'DRG Definition': '057 - DEGENERATIVE NERVOUS SYSTEM DISORDERS W/O MCC',
-          // 'Provider Id': '360035',
-          // 'Provider Name': 'MOUNT CARMEL HEALTH',
-          // 'Provider Street Address': '793 WEST STATE STREET',
-          // 'Provider City': 'COLUMBUS',
-          // 'Provider State': 'OH',
-          // 'Provider Zip Code': '43222',
-          // 'Hospital Referral Region Description': 'OH - Columbus',
-          // ' Total Discharges ': '34',
-          // ' Average Covered Charges ': '$8976.64',
-          // ' Average Total Payments ': '$5725.47',
-          // 'Average Medicare Payments': '$4838.97' }
-        var rawObject = row.data[0];
-        // clean up row object so field names and data types are right
-        var cleanedObject = {
+    var rows = parsed.data;
+    var cleanedRows = rows.map(function(rawObject){
+        return {
             "drg_definition": rawObject["DRG Definition"],
-              'provider_id': rawObject["Provider Id"],
-              'provider_name': rawObject["Provider Name"],
-              'street_address': rawObject["Provider Street Address"],
-              'city': rawObject["Provider City"],
-              'state': rawObject["Provider State"],
-              'zipcode': rawObject["Provider Zip Code"],
-              'hospital_referral_region': rawObject["Hospital Referral Region Description"],
-              'total_discharges': parseInt(rawObject[" Total Discharges "]),
-              'average_covered_charges': parseMoney(rawObject[" Average Covered Charges "]),
-              'average_total_payments': parseMoney(rawObject[" Average Total Payments "]),
-              'average_medicare_payments': parseMoney(rawObject["Average Medicare Payments"])
+          'provider_id': rawObject["Provider Id"],
+          'provider_name': rawObject["Provider Name"],
+          'street_address': rawObject["Provider Street Address"],
+          'city': rawObject["Provider City"],
+          'state': rawObject["Provider State"],
+          'zipcode': rawObject["Provider Zip Code"],
+          'hospital_referral_region': rawObject["Hospital Referral Region Description"],
+          'total_discharges': parseInt(rawObject[" Total Discharges "]),
+          'average_covered_charges': parseMoney(rawObject[" Average Covered Charges "]),
+          'average_total_payments': parseMoney(rawObject[" Average Total Payments "]),
+          'average_medicare_payments': parseMoney(rawObject["Average Medicare Payments"])
         };
+    });
 
-        // put it in the table
-        knex('procedures').insert(cleanedObject)
-            .catch(function(error){
-                console.error(error);
-            });
-    },
-    complete: function() {
-        // finish up
-        console.log("Done importing!");
+    knex.batchInsert('procedures', cleanedRows, 10)
+        .returning('id')
+        .then(function(ids){
+            // do something
+            console.log("Done with end ids=", ids);
+        })
+        .catch(function(error){
+            console.error(error);
+        });
 
-        // just to test, try selecting data
-    //     knex('procedures').where({
-    //       total_discharges: 27
-    //   }).select().then(function(data){
-    //       console.log(data);
-    //   }).catch(function(error){
-    //       console.error(error);
-    //   });
-    }
 });
-
 
 // UTILITIES
 
 // "$1234.56" => 1234.56
 function parseMoney(moneyString) {
+    if (!moneyString) {
+        return 0;
+    }
     return parseFloat(moneyString.replace("$",""));
 }
