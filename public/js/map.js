@@ -91,10 +91,12 @@ $('#input-zipcode')
 function doSearch(){
     // TODO data validation
     var zipcode = $('#input-zipcode').val();
+    var procedure = $('#input-procedure').val();
 
     // update the map to the zipcode where they searched from
     geocoder.geocode( { 'address': zipcode }, function(results, status) {
         if (status === 'OK') {
+            console.log(results[0]);
             map.panTo(results[0].geometry.location);
         } else {
             console.error('Geocode error', status);
@@ -107,17 +109,18 @@ function doSearch(){
     });
     markers = [];
 
+
     // fire off an ajax request to get the procedure data
     $.getJSON({
             url: "/procedures",
             data: {
                 zipcode: zipcode,
-                procedure: $('#input-procedure').val()
+                procedure: procedure
             }
         })
         .done(function(data) {
             // these are the nearby treatments
-            drawProcedureData(data);
+            loadProcedureData(procedure, zipcode, data);
         })
         .fail(function(error) {
             console.error(error);
@@ -125,17 +128,13 @@ function doSearch(){
 }
 
 /**
- * Given procedure data, draws it on the map and in the sidebar.
+ * Given procedure price data, draws it on the map and in the sidebar.
  */
-function drawProcedureData(data){
+function loadProcedureData(procedure, zipcode, data){
     // sort procedures by cost
     data.sort(function(a,b){
         return a.average_total_payments - b.average_total_payments;
     });
-
-
-    // attach a rank to them (for the map's purposes)
-    // TODO
 
     // draw markers on map
     // determine their colors
@@ -149,9 +148,9 @@ function drawProcedureData(data){
 
     var colorScale = d3.scale.linear()
         .domain([min, mid, max])
-        .range(["green", "white", "red"]);
+        .range(["green", "yellow", "red"]);
 
-    // TODO throttle this
+
 
     // run on each data element
     var eachDataFunction = function(procedure){
@@ -166,8 +165,12 @@ function drawProcedureData(data){
     });
 
     // draw in sidebar
-    // TODO
-    // or do a bar chart
+    $('#care-stats-procedure').html(procedure);
+    $('#care-stats-place').html(zipcode);
+
+
+
+    // do a bar chart
     barGraph.updateVis(data);
 }
 
