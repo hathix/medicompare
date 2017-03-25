@@ -10,10 +10,13 @@ block content
       div(class='form-group col-sm-5 text-left')
         label(class='sr-only', for='zip') Zip Code
         input(type='zipcode', class='form-control', id='zipcode', name='zipcode', placeholder='Zip Code')
-      button(class='btn btn-default glyphicon glyphicon-search col-sm-2 text-left' type='submit')
+      button(class='btn btn-default glyphicon glyphicon-search col-sm-2 text-left' type='submit' onclick='initMap()')
   if {zipcode}
     p #{zipcode}
   if {procedure}
     p #{procedure}
+  p Google Map
+  div(id = 'gMap')
+  script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC4E-nwaTt1FIhhqjUT_DsKHv0PGHuDCF0&callback=initMap')
 
 
