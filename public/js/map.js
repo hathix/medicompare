@@ -8,26 +8,37 @@ function initMap() {
 
 // handle searching
 $('#search-submit')
-    .on('click', function() {
-        // TODO data validation
+    .on('click', doSearch);
+$('#input-zipcode')
+    .on('keypress', function(event) {
+            // search if someone hits 'enter' on the zipcode search field
+            if (event.which == 13 || event.keyCode == 13) {
+                doSearch();
+                return false;
+            }
+            return true;
+        });
 
-        // fire off an ajax request to get the procedure data
-        $.getJSON({
-                url: "/procedures",
-                data: {
-                    zipcode: $('#input-zipcode').val(),
-                    procedure: $('#input-procedure').val()
-                }
-            })
-            .done(function(data) {
-                // these are the nearby treatments
-                console.log(data);
-            })
-            .fail(function(error) {
-                console.error(error);
-            });
-    });
 
+function doSearch(){
+    // TODO data validation
+
+    // fire off an ajax request to get the procedure data
+    $.getJSON({
+            url: "/procedures",
+            data: {
+                zipcode: $('#input-zipcode').val(),
+                procedure: $('#input-procedure').val()
+            }
+        })
+        .done(function(data) {
+            // these are the nearby treatments
+            console.log(data);
+        })
+        .fail(function(error) {
+            console.error(error);
+        });
+}
 
 
 
