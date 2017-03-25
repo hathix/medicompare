@@ -2,6 +2,7 @@
 var map;
 var geocoder;
 var markers = [];
+var infoWindow;
 
 function initMap() {
 	var mapProp = {
@@ -10,12 +11,17 @@ function initMap() {
     };
     map = new google.maps.Map(document.getElementById("gMap"), mapProp);
     geocoder = new google.maps.Geocoder();
+    infoWindow = new google.maps.InfoWindow({
+        // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
+    });
 };
+
 
 function addMarker(procedure, color) {
     var address = procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
     geocoder.geocode( { 'address': address }, function(results, status) {
         if (status === 'OK') {
+            console.log(procedure.provider_name);
             var marker = new google.maps.Marker({
                 position: results[0].geometry.location,
                 map: map,
@@ -27,12 +33,15 @@ function addMarker(procedure, color) {
             });
             markers.push(marker);
             var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: $' + procedure.average_total_payments + '</div>' + '</div>';
-            var infoWindow = new google.maps.InfoWindow({
-                // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
-                content: contentString
-            });
 
             marker.addListener('click', function(){
+                try{
+                    infoWindow.close();
+                }
+                catch(error) {}
+
+                infoWindow.setContent(contentString);
+
                 infoWindow.open(map, marker);
             })
         } else {
@@ -144,11 +153,16 @@ function drawProcedureData(data){
 
     // TODO throttle this
 
-    data.forEach(function(procedure){
+    // run on each data element
+    var eachDataFunction = function(procedure){
         // use the scale to determine the pin color
         var color = colorScale(procedure.average_total_payments).replace("#", "");
-        console.log(color);
+        // console.log(color);
         addMarker(procedure, color);
+    };
+
+    data.forEach(function(procedure, index){
+        window.setTimeout(eachDataFunction.bind(null, procedure), index*500);
     });
 
     // draw in sidebar
