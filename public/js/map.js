@@ -1,11 +1,12 @@
 // create map view
 var map;
 var geocoder;
+var markers = [];
 
 function initMap() {
 	var mapProp = {
         center: new google.maps.LatLng(42.342104, -71.065755),
-        zoom: 10
+        zoom: 9
     };
     map = new google.maps.Map(document.getElementById("gMap"), mapProp);
     geocoder = new google.maps.Geocoder();
@@ -25,6 +26,7 @@ function addMarker(procedure) {
                 //     labelOrigin: new google.maps.Point(25, 40)
                 // }
             });
+            markers.push(marker);
 
             var infoWindow = new google.maps.InfoWindow({
                 // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
@@ -65,6 +67,12 @@ function doSearch(){
             console.error('Geocode error', status);
         }
     });
+
+    // reset map - remove all markers
+    markers.forEach(function(marker){
+        marker.setMap(null);
+    });
+    markers = [];
 
     // fire off an ajax request to get the procedure data
     $.getJSON({
@@ -316,5 +324,5 @@ BarGraph.prototype.updateVis = function(data) {
     .attr("text-anchor", "start") // text-align: right
     .attr("fill", "black")
     .attr("stroke", "none")
-    .text(function(d) { return d3.round(vis.barValue(d), 2); });
+    .text(function(d) { return "$" + d3.round(vis.barValue(d), 2); });
 }
