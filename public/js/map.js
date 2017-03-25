@@ -1,27 +1,34 @@
 // create map view
+var map;
+var geocoder = new google.maps.Geocoder();
+
 function initMap() {
 	var mapProp = {
         center: new google.maps.LatLng(42.342104, -71.065755),
         zoom: 15
     };
-    var map = new google.maps.Map(document.getElementById("gMap"), mapProp);
+    map = new google.maps.Map(document.getElementById("gMap"), mapProp);
 };
 
-function addMarker(place) {
-    // create and display marker
-    var marker = new google.maps.Marker({
-        position: {lat: place.latitude, lng: place.longitude},
-        map: map,
-        title: place.place_name,
-        icon: {
-            url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
-            labelOrigin: new google.maps.Point(25, 40)
-        },
-        label: {
-            text: place.place_name + ", " + place.admin_name1
-        }    
+// TODO: function to get lat/long from Google Geocoding Service
+function addMarker(procedure) {
+    geocoder.geocode( { 'address': procedure.street_address }, function(results, status) {
+        if (status == 'OK') {
+            var marker = new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map,
+                title: procedure.provider_name,
+                icon: {
+                    url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
+                    labelOrigin: new google.maps.Point(25, 40)
+                }
+            });
+        } else {
+            alert('Geocode was not successful for the following reason: ' + status);
+        }
     });
 }
+
 
 $('#search-submit')
     .on('click', function() {
@@ -38,6 +45,9 @@ $('#search-submit')
             .done(function(data) {
                 // these are the nearby treatments
                 console.log(data);
+                data.forEach(function(procedure){
+                    addMarker(procedure);
+                });
             })
             .fail(function(error) {
                 console.error(error);
