@@ -5,7 +5,7 @@ var papaparse = require('papaparse');
 
 
 // initialize the database
-// KNEX: sqlite query builder
+// Knex: sqlite query builder
 var knex = require('knex')({
   client: 'sqlite3',
   connection: {
@@ -13,7 +13,6 @@ var knex = require('knex')({
 },
 useNullAsDefault: true
 });
-// var db = new sqlite3.Database('inpatient-costs.sqlite');
 
 // create database
 knex.schema.createTableIfNotExists('procedures', function (table) {
@@ -31,14 +30,14 @@ knex.schema.createTableIfNotExists('procedures', function (table) {
   table.float('average_total_payments');
   table.float('average_medicare_payments');
 })
-.then(function(x){
-    console.log(x);
+.catch(function(error){
+    console.error(error);
 });
 
 
 // set up the csv reader
 // TODO using the mini csv, switch to using the full one
-var readStream = fs.createReadStream('inpatient-costs-mini.csv');
+var readStream = fs.createReadStream('inpatient-costs.csv');
 papaparse.parse(readStream, {
     header: true,
     step: function(row) {
@@ -74,14 +73,28 @@ papaparse.parse(readStream, {
         };
 
         // put it in the table
+        knex('procedures').insert(cleanedObject)
+            .catch(function(error){
+                console.error(error);
+            });
     },
     complete: function() {
         // finish up
-        console.log("Done");
+        console.log("Done importing!");
+
+        // just to test, try selecting data
+    //     knex('procedures').where({
+    //       total_discharges: 27
+    //   }).select().then(function(data){
+    //       console.log(data);
+    //   }).catch(function(error){
+    //       console.error(error);
+    //   });
     }
 });
 
 
+// UTILITIES
 
 // "$1234.56" => 1234.56
 function parseMoney(moneyString) {
