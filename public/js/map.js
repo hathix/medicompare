@@ -1,6 +1,7 @@
 // create map view
 var map;
 var geocoder;
+var priceStyle = ""
 
 function initMap() {
 	var mapProp = {
@@ -25,10 +26,10 @@ function addMarker(procedure) {
                 //     labelOrigin: new google.maps.Point(25, 40)
                 // }
             });
-
+            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: $' + procedure.average_total_payments + '</div>' + '</div>';
             var infoWindow = new google.maps.InfoWindow({
                 // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
-                content: "hi"
+                content: contentString
             });
 
             marker.addListener('click', function(){
