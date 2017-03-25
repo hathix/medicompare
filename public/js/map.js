@@ -31,29 +31,36 @@ function addMarker(procedure) {
 
 
 $('#search-submit')
-    .on('click', function() {
-        // TODO data validation
+    .on('click', doSearch);
+$('#input-zipcode')
+    .on('keypress', function(event) {
+            // search if someone hits 'enter' on the zipcode search field
+            if (event.which == 13 || event.keyCode == 13) {
+                doSearch();
+                return false;
+            }
+            return true;
+        });
 
-        // fire off an ajax request to get the procedure data
-        $.getJSON({
-                url: "/procedures",
-                data: {
-                    zipcode: $('#input-zipcode').val(),
-                    procedure: $('#input-procedure').val()
-                }
-            })
-            .done(function(data) {
-                // these are the nearby treatments
-                console.log(data);
-                data.forEach(function(procedure){
-                    addMarker(procedure);
-                });
-            })
-            .fail(function(error) {
-                console.error(error);
-            });
-    });
+function doSearch(){
+    // TODO data validation
 
+    // fire off an ajax request to get the procedure data
+    $.getJSON({
+            url: "/procedures",
+            data: {
+                zipcode: $('#input-zipcode').val(),
+                procedure: $('#input-procedure').val()
+            }
+        })
+        .done(function(data) {
+            // these are the nearby treatments
+            console.log(data);
+        })
+        .fail(function(error) {
+            console.error(error);
+        });
+}
 
 
 
@@ -172,7 +179,8 @@ var formattedCodes = drgCodes.map(function(code) {
 $("#input-procedure")
     .select2({
         placeholder: 'DRG Medical Procedure Code',
-        allowClear: true,
+        // allowClear: true,
+        theme: "bootstrap",
         data: drgCodes
     })
     .val(null)

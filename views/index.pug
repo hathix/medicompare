@@ -2,7 +2,7 @@ extends layout
 
 block content
     div(class='container')
-        h1(class='text-center align-center')
+        h1(class='text-center text-danger align-center')
             span(class='glyphicon glyphicon-plus')
             span Medicompare
         div(class='row')
@@ -12,7 +12,7 @@ block content
             div(class='form-group col-sm-5')
                 label(class='sr-only', for='zip') Zip Code
                 input(type='zipcode', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code' required)
-            button(class='btn btn-default glyphicon glyphicon-search col-sm-2' id='search-submit')
+            button(class='btn btn-primary glyphicon glyphicon-search col-sm-2' id='search-submit')
         if {zipcode}
             p #{zipcode}
         if {procedure}
@@ -22,3 +22,53 @@ block content
 block scripts
     script(src='js/map.js')
     script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC4E-nwaTt1FIhhqjUT_DsKHv0PGHuDCF0&callback=initMap')
+
+            //- 
+            //- 
+            //- p(class='lead text-center')
+            //-     span Find prices for &nbsp;
+            //-     span(class='form-group form-inline')
+            //-         label(class='sr-only', for='input-procedure') Procedure
+            //-         select(class='form-control', id='input-procedure', name='input-procedure', placeholder='Medical Procedure')
+            //- div(class='lead text-center')
+            //-     span Within &nbsp;
+            //-     span(class='form-inline')
+            //-         label(class='sr-only', for='zip') Radius (miles)
+            //-         input(type='number', class='form-control', id='input-zipcode', name='zipcode',
+            //-             placeholder='Radius', min='1',max='100')
+            //-     span &nbsp; miles of &nbsp;
+            //-     span(class='form-group form-inline')
+            //-         label(class='sr-only', for='zip') Zip Code
+            //-         input(type='text', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code')
+            //-     span &nbsp;
+            //-     button(class='btn btn-primary glyphicon glyphicon-search' id='search-submit')
+            //- if {zipcode}
+            //-     p #{zipcode}
+            //- if {procedure}
+            //-     p #{procedure}
+            //- 
+            //-     h1(class='text-center align-center')
+            //-         span(class='glyphicon glyphicon-plus')
+            //-         span Medicompare
+            //- 
+            //-     p(class='lead text-center')
+            //-         span Find prices for &nbsp;
+            //-         span(class='form-group form-inline')
+            //-             label(class='sr-only', for='input-procedure') Procedure
+            //-             select(class='form-control', id='input-procedure', name='input-procedure', placeholder='Medical Procedure')
+            //-     div(class='lead text-center')
+            //-         span Within &nbsp;
+            //-         span(class='form-inline')
+            //-             label(class='sr-only', for='zip') Radius (miles)
+            //-             input(type='number', class='form-control', id='input-zipcode', name='zipcode',
+            //-                 placeholder='Radius', min='1',max='100')
+            //-         span &nbsp; miles of &nbsp;
+            //-         span(class='form-group form-inline')
+            //-             label(class='sr-only', for='zip') Zip Code
+            //-             input(type='text', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code')
+            //-         span &nbsp;
+            //-         button(class='btn btn-primary glyphicon glyphicon-search' id='search-submit')
+            //-     if {zipcode}
+            //-         p #{zipcode}
+            //-     if {procedure}
+            //-         p #{procedure}
