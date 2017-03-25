@@ -2,15 +2,17 @@ extends layout
 
 block content
     div(class='container')
-        h1(class='text-center align-center') Medicompare
+        h1(class='text-center align-center')
+            span(class='glyphicon glyphicon-plus')
+            span Medicompare
         div(class='row')
-            div(class='form-group col-sm-5 text-right')
+            div(class='form-group col-sm-5')
                 label(class='sr-only', for='input-procedure') Procedure
-                select(class='form-control', id='input-procedure', name='input-procedure', placeholder='Medical Procedure')        
-            div(class='form-group col-sm-5 text-left')
+                select(class='form-control', id='input-procedure', name='input-procedure', placeholder='Medical Procedure' rquired)        
+            div(class='form-group col-sm-5')
                 label(class='sr-only', for='zip') Zip Code
-                input(type='zipcode', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code')
-            button(class='btn btn-default glyphicon glyphicon-search col-sm-2 text-left')
+                input(type='zipcode', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code' required)
+            button(class='btn btn-default glyphicon glyphicon-search col-sm-2' id='search-submit')
         if {zipcode}
             p #{zipcode}
         if {procedure}

@@ -23,9 +23,31 @@ function addMarker(place) {
     });
 }
 
+$('#search-submit')
+    .on('click', function() {
+        // TODO data validation
+
+        // fire off an ajax request to get the procedure data
+        $.getJSON({
+                url: "/procedures",
+                data: {
+                    zipcode: $('#input-zipcode').val(),
+                    procedure: $('#input-procedure').val()
+                }
+            })
+            .done(function(data) {
+                // these are the nearby treatments
+                console.log(data);
+            })
+            .fail(function(error) {
+                console.error(error);
+            });
+    });
 
 
 
+
+// set up procedure code search
 var drgCodes = ["039 - EXTRACRANIAL PROCEDURES W/O CC/MCC",
     "057 - DEGENERATIVE NERVOUS SYSTEM DISORDERS W/O MCC",
     "069 - TRANSIENT ISCHEMIA",
