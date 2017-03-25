@@ -157,7 +157,8 @@ var formattedCodes = drgCodes.map(function(code) {
 $("#input-procedure")
     .select2({
         placeholder: 'DRG Medical Procedure Code',
-        allowClear: true,
+        // allowClear: true,
+        theme: "bootstrap",
         data: drgCodes
     })
     .val(null)
