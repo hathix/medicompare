@@ -43,6 +43,12 @@ function addMarker(procedure) {
 }
 
 
+var barGraph;
+$(document).ready(function(){
+    barGraph = new BarGraph("bar-graph");
+});
+
+
 $('#search-submit')
     .on('click', doSearch);
 $('#input-zipcode')
@@ -110,7 +116,6 @@ function drawProcedureData(data){
     // draw in sidebar
     // TODO
     // or do a bar chart
-    var barGraph = new BarGraph("bar-graph");
     barGraph.updateVis(data);
 }
 
