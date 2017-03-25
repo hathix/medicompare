@@ -2,6 +2,7 @@
 var map;
 var geocoder;
 var markers = [];
+var infoWindow;
 
 function initMap() {
 	var mapProp = {
@@ -10,30 +11,37 @@ function initMap() {
     };
     map = new google.maps.Map(document.getElementById("gMap"), mapProp);
     geocoder = new google.maps.Geocoder();
+    infoWindow = new google.maps.InfoWindow({
+        // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
+    });
 };
 
-function addMarker(procedure) {
+
+function addMarker(procedure, color) {
     var address = procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
-    console.log(address);
     geocoder.geocode( { 'address': address }, function(results, status) {
         if (status === 'OK') {
+            console.log(procedure.provider_name);
             var marker = new google.maps.Marker({
                 position: results[0].geometry.location,
                 map: map,
                 title: procedure.provider_name,
-                // icon: {
-                //     url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
-                //     labelOrigin: new google.maps.Point(25, 40)
-                // }
+                icon: {
+                    url: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2%7C" + color,
+                    // labelOrigin: new google.maps.Point(25, 40)
+                }
             });
             markers.push(marker);
             var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: $' + procedure.average_total_payments + '</div>' + '</div>';
-            var infoWindow = new google.maps.InfoWindow({
-                // details https://developers.google.com/maps/documentation/javascript/examples/infowindow-simple
-                content: contentString
-            });
 
             marker.addListener('click', function(){
+                try{
+                    infoWindow.close();
+                }
+                catch(error) {}
+
+                infoWindow.setContent(contentString);
+
                 infoWindow.open(map, marker);
             })
         } else {
@@ -83,10 +91,12 @@ $('#input-zipcode')
 function doSearch(){
     // TODO data validation
     var zipcode = $('#input-zipcode').val();
+    var procedure = $('#input-procedure').val();
 
     // update the map to the zipcode where they searched from
     geocoder.geocode( { 'address': zipcode }, function(results, status) {
         if (status === 'OK') {
+            console.log(results[0]);
             map.panTo(results[0].geometry.location);
         } else {
             console.error('Geocode error', status);
@@ -99,17 +109,18 @@ function doSearch(){
     });
     markers = [];
 
+
     // fire off an ajax request to get the procedure data
     $.getJSON({
             url: "/procedures",
             data: {
                 zipcode: zipcode,
-                procedure: $('#input-procedure').val()
+                procedure: procedure
             }
         })
         .done(function(data) {
             // these are the nearby treatments
-            drawProcedureData(data);
+            loadProcedureData(procedure, zipcode, data);
         })
         .fail(function(error) {
             console.error(error);
@@ -117,24 +128,49 @@ function doSearch(){
 }
 
 /**
- * Given procedure data, draws it on the map and in the sidebar.
+ * Given procedure price data, draws it on the map and in the sidebar.
  */
-function drawProcedureData(data){
+function loadProcedureData(procedure, zipcode, data){
     // sort procedures by cost
     data.sort(function(a,b){
         return a.average_total_payments - b.average_total_payments;
     });
-    // attach a rank to them (for the map's purposes)
-    // TODO
 
     // draw markers on map
-    data.forEach(function(procedure){
-        addMarker(procedure);
+    // determine their colors
+    // first, find min/max/midpoint of prices
+    var extent = d3.extent(data.map(function(d){
+        return d.average_total_payments;
+    }));
+    var min = extent[0];
+    var max = extent[1];
+    var mid = (min + max) / 2;
+
+    var colorScale = d3.scale.linear()
+        .domain([min, mid, max])
+        .range(["green", "yellow", "red"]);
+
+
+
+    // run on each data element
+    var eachDataFunction = function(procedure){
+        // use the scale to determine the pin color
+        var color = colorScale(procedure.average_total_payments).replace("#", "");
+        // console.log(color);
+        addMarker(procedure, color);
+    };
+
+    data.forEach(function(procedure, index){
+        window.setTimeout(eachDataFunction.bind(null, procedure), index*500);
     });
 
     // draw in sidebar
-    // TODO
-    // or do a bar chart
+    $('#care-stats-procedure').html(procedure);
+    $('#care-stats-place').html(zipcode);
+
+
+
+    // do a bar chart
     barGraph.updateVis(data);
 }
 
