@@ -14,7 +14,8 @@
     "morgan": "~1.7.0",
     "node-sass-middleware": "0.9.8",
     "pug": "~2.0.0-beta10",
-    "serve-favicon": "~2.3.2"
+    "serve-favicon": "~2.3.2",
+    "zipcodes": "^2.1.0"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

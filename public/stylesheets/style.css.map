@@ -4,6 +4,6 @@
 	"sources": [
 		"style.scss"
 	],
-	"mappings": "AAAA,AAAA,IAAI,CAAC;EACH,OAAO,EAAE,IAAK;EACd,IAAI,EAAE,kDAAmD,GAAG;;AAE9D,AAAA,CAAC,CAAC;EACA,KAAK,EAAE,OAAQ,GAAG",
+	"mappings": "AAGA,AAAA,CAAC,CAAC;EACE,KAAK,EAAE,GAAI,GACd",
 	"names": []
 }
