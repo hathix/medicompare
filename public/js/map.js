@@ -1,6 +1,5 @@
 // create map view
 var map;
-var geocoder = new google.maps.Geocoder();
 
 function initMap() {
 	var mapProp = {
@@ -9,6 +8,8 @@ function initMap() {
     };
     map = new google.maps.Map(document.getElementById("gMap"), mapProp);
 };
+
+var geocoder = new google.maps.Geocoder();
 
 // TODO: function to get lat/long from Google Geocoding Service
 function addMarker(procedure) {
@@ -41,6 +42,25 @@ $('#input-zipcode')
             }
             return true;
         });
+
+        // fire off an ajax request to get the procedure data
+        $.getJSON({
+                url: "/procedures",
+                data: {
+                    zipcode: $('#input-zipcode').val(),
+                    procedure: $('#input-procedure').val()
+                }
+            })
+            .done(function(data) {
+                // these are the nearby treatments
+                console.log(data);
+                data.forEach(function(procedure){
+                    addMarker(procedure);
+                });
+            })
+            .fail(function(error) {
+                console.error(error);
+            });
 
 function doSearch(){
     // TODO data validation
