@@ -6,10 +6,31 @@ function initMap() {
     var map = new google.maps.Map(document.getElementById("gMap"), mapProp);
 };
 
+// handle searching
+$('#search-submit')
+    .on('click', function() {
+        // TODO data validation
+
+        // fire off an ajax request to get the procedure data
+        $.getJSON({
+                url: "/procedures",
+                data: {
+                    zipcode: $('#input-zipcode').val(),
+                    procedure: $('#input-procedure').val()
+                }
+            })
+            .done(function(data) {
+                console.log("data", data);
+            })
+            .fail(function(error) {
+                console.error(error);
+            });
+    });
 
 
 
 
+// set up procedure code search
 var drgCodes = ["039 - EXTRACRANIAL PROCEDURES W/O CC/MCC",
     "057 - DEGENERATIVE NERVOUS SYSTEM DISORDERS W/O MCC",
     "069 - TRANSIENT ISCHEMIA",
