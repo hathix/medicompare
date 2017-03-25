@@ -12,19 +12,18 @@ function initMap() {
     geocoder = new google.maps.Geocoder();
 };
 
-function addMarker(procedure) {
+function addMarker(procedure, color) {
     var address = procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
-    console.log(address);
     geocoder.geocode( { 'address': address }, function(results, status) {
         if (status === 'OK') {
             var marker = new google.maps.Marker({
                 position: results[0].geometry.location,
                 map: map,
                 title: procedure.provider_name,
-                // icon: {
-                //     url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
-                //     labelOrigin: new google.maps.Point(25, 40)
-                // }
+                icon: {
+                    url: "http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2%7C" + color,
+                    // labelOrigin: new google.maps.Point(25, 40)
+                }
             });
             markers.push(marker);
 
@@ -105,12 +104,32 @@ function drawProcedureData(data){
     data.sort(function(a,b){
         return a.average_total_payments - b.average_total_payments;
     });
+
+
     // attach a rank to them (for the map's purposes)
     // TODO
 
     // draw markers on map
+    // determine their colors
+    // first, find min/max/midpoint of prices
+    var extent = d3.extent(data.map(function(d){
+        return d.average_total_payments;
+    }));
+    var min = extent[0];
+    var max = extent[1];
+    var mid = (min + max) / 2;
+
+    var colorScale = d3.scale.linear()
+        .domain([min, mid, max])
+        .range(["green", "white", "red"]);
+
+    // TODO throttle this
+
     data.forEach(function(procedure){
-        addMarker(procedure);
+        // use the scale to determine the pin color
+        var color = colorScale(procedure.average_total_payments).replace("#", "");
+        console.log(color);
+        addMarker(procedure, color);
     });
 
     // draw in sidebar
