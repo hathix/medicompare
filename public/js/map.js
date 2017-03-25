@@ -1,11 +1,27 @@
+// create map view
 function initMap() {
 	var mapProp = {
-        center: new google.maps.LatLng(-40, 75),
-        zoom: 5
+        center: new google.maps.LatLng(42.342104, -71.065755),
+        zoom: 15
     };
     var map = new google.maps.Map(document.getElementById("gMap"), mapProp);
 };
 
+function addMarker(place) {
+    // create and display marker
+    var marker = new google.maps.Marker({
+        position: {lat: place.latitude, lng: place.longitude},
+        map: map,
+        title: place.place_name,
+        icon: {
+            url: "http://maps.google.com/mapfiles/kml/pal2/icon31.png",
+            labelOrigin: new google.maps.Point(25, 40)
+        },
+        label: {
+            text: place.place_name + ", " + place.admin_name1
+        }    
+    });
+}
 
 
 
