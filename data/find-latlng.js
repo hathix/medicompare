@@ -58,8 +58,9 @@ fs.readFile('providers-mini.csv', function(err, data) {
     // Calculate lat/long for each of these
     var locationPromises = cleanedRows.forEach(function(row, index){
         // TODO stagger these with a timeout so that they don't time out
-        // IDK if i'm doing this right
-        return Promise.delay(index*1000, new Promise(function(resolve, reject){
+        // try using promise.delay but idk how to use it
+        // http://bluebirdjs.com/docs/api/promise.delay.html
+        var promise = new Promise(function(resolve, reject){
             var address = row.street_address + ", " + row.city + ", " + row.state + " " + row.zipcode;
             geocoder.geocode(address, function ( err, data ) {
               // add the location data to the row object, and return it
@@ -77,7 +78,10 @@ fs.readFile('providers-mini.csv', function(err, data) {
                   resolve(row);
               }
             });
-        }));
+        });
+
+        // still doesn't work :( :( :(
+        return Promise.delay(1000).return(promise);
     });
 
     Promise.all(locationPromises).then(function(promiseData){
