@@ -4,12 +4,12 @@ var router = express.Router();
 var procedureSearch = require('../lib/procedure-search');
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
+router.get('/main', function(req, res, next) {
     res.render('index');
 });
 
 // GET landing page
-router.get('/landing', function(req, res, next) {
+router.get('/', function(req, res, next) {
 	res.render('landing');
 });
 
