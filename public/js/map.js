@@ -407,8 +407,5 @@ BarGraph.prototype.updateVis = function(data) {
 }
 
 
-
 // formats a float of money as a string
-function formatMoney(amount){
-    return "$" + d3.round(amount, 2);
-}
+const formatMoney = d3.format("$,.2f");
