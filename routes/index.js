@@ -8,6 +8,11 @@ router.get('/', function(req, res, next) {
     res.render('index');
 });
 
+// GET landing page
+router.get('/landing', function(req, res, next) {
+	res.render('landing');
+});
+
 // Ajax
 // Asynchronously fetch the list of similar procedures near the
 // given zip codes. Returns a JSON array.
