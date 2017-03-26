@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var procedureSearch = require('../lib/procedure-search');
+var api = require('../lib/api');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -16,7 +16,7 @@ router.get('/procedures', function(req, res, next) {
     var procedure = req.query['procedure'];
 
     // get procedure data and return once it's good
-    procedureSearch(procedure, zipcode, 25)
+    api.findNearbyProcedureData(procedure, zipcode, 25)
         .then(function(data) {
             // success
             res.send(data);
@@ -26,6 +26,13 @@ router.get('/procedures', function(req, res, next) {
             res.status(500)
                 .send(error);
         });
-})
+});
+
+// given a zipcode, returns information about its location
+router.get('/zipcode', function(req, res, next) {
+    var zipcode = req.query['zipcode'];
+
+    res.send(api.zipcodeLookup(zipcode));
+});
 
 module.exports = router;

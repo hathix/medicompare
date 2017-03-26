@@ -29,6 +29,26 @@ block content
                         span(id='care-stats-procedure' class='text-info')
                         span &nbsp;near&nbsp;
                         span(id='care-stats-place' class='text-info')
+                    table(class='table')
+                        tr(class='info')
+                            td(class='') Average near #[span(id='lookup-zip')]
+                            td(class='', id='average-price-local')
+                        tr
+                            td(class='') #[span(id='lookup-state')] average
+                            td(class='') $800
+                        tr
+                            td(class='') National average
+                            td(class='') $1500
+                    //- table
+                    //-     tr
+                    //-         td(class='text-right') Min
+                    //-         td(class='text-success') 500
+                    //-     tr
+                    //-         td(class='text-right') Average
+                    //-         td(class='') #[strong 1000]
+                    //-     tr
+                    //-         td(class='text-right') Max 
+                    //-         td(class='text-danger') 1500
         div(class='')
             //- div(class='list-group' id='hospital-list')
             div(id='bar-graph')

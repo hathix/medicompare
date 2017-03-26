@@ -69,24 +69,6 @@ $('#input-zipcode')
             return true;
         });
 
-        // fire off an ajax request to get the procedure data
-        $.getJSON({
-                url: "/procedures",
-                data: {
-                    zipcode: $('#input-zipcode').val(),
-                    procedure: $('#input-procedure').val()
-                }
-            })
-            .done(function(data) {
-                // these are the nearby treatments
-                console.log(data);
-                data.forEach(function(procedure){
-                    addMarker(procedure);
-                });
-            })
-            .fail(function(error) {
-                console.error(error);
-            });
 
 function doSearch(){
     // TODO data validation
@@ -94,14 +76,14 @@ function doSearch(){
     var procedure = $('#input-procedure').val();
 
     // update the map to the zipcode where they searched from
-    geocoder.geocode( { 'address': zipcode }, function(results, status) {
-        if (status === 'OK') {
-            console.log(results[0]);
-            map.panTo(results[0].geometry.location);
-        } else {
-            console.error('Geocode error', status);
-        }
-    });
+    // geocoder.geocode( { 'address': zipcode }, function(results, status) {
+    //     if (status === 'OK') {
+    //         // TODO store the results here and share with the loadProcedureData, who wants to show info on the sidebar
+    //         map.panTo(results[0].geometry.location);
+    //     } else {
+    //         console.error('Geocode error', status);
+    //     }
+    // });
 
     // reset map - remove all markers
     markers.forEach(function(marker){
@@ -110,36 +92,51 @@ function doSearch(){
     markers = [];
 
 
+    // figure out which state and lat/long they're at
     // fire off an ajax request to get the procedure data
-    $.getJSON({
+    var locationAjax = $.getJSON({
+            url: "/zipcode",
+            data: {
+                zipcode: zipcode
+            }
+        });
+
+    // fire off an ajax request to get the procedure data
+    var procedureAjax = $.getJSON({
             url: "/procedures",
             data: {
                 zipcode: zipcode,
                 procedure: procedure
             }
-        })
-        .done(function(data) {
-            // these are the nearby treatments
-            loadProcedureData(procedure, zipcode, data);
-        })
-        .fail(function(error) {
-            console.error(error);
         });
+
+    // wait for all to resolve
+    $.when(locationAjax, procedureAjax).done(function(locationResult, procedureResult){
+        // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
+        // Each argument is an array with the following structure: [ data, statusText, jqXHR ]
+        var locationData = locationResult[0];
+        var procedureData = procedureResult[0];
+
+        loadProcedureData(procedure, zipcode, locationData, procedureData);
+    })
+    .fail(function(error) {
+        console.error(error);
+    });
 }
 
 /**
  * Given procedure price data, draws it on the map and in the sidebar.
  */
-function loadProcedureData(procedure, zipcode, data){
+function loadProcedureData(procedure, zipcode, location, procedureData){
     // sort procedures by cost
-    data.sort(function(a,b){
+    procedureData.sort(function(a,b){
         return a.average_total_payments - b.average_total_payments;
     });
 
     // draw markers on map
     // determine their colors
     // first, find min/max/midpoint of prices
-    var extent = d3.extent(data.map(function(d){
+    var extent = d3.extent(procedureData.map(function(d){
         return d.average_total_payments;
     }));
     var min = extent[0];
@@ -151,6 +148,9 @@ function loadProcedureData(procedure, zipcode, data){
         .range(["green", "yellow", "red"]);
 
 
+    // update the map to the zipcode where they searched from
+    map.panTo(new google.maps.LatLng(location.latitude, location.longitude));
+
 
     // run on each data element
     var eachDataFunction = function(procedure){
@@ -160,18 +160,23 @@ function loadProcedureData(procedure, zipcode, data){
         addMarker(procedure, color);
     };
 
-    data.forEach(function(procedure, index){
+    procedureData.forEach(function(procedure, index){
         window.setTimeout(eachDataFunction.bind(null, procedure), index*500);
     });
 
     // draw in sidebar
     $('#care-stats-procedure').html(procedure);
-    $('#care-stats-place').html(zipcode);
+    $('#care-stats-place').html(location.city + ", " + location.state);
+    $('#lookup-zip').html(zipcode);
+    $('#lookup-state').html(location.state);
 
-
+    // care price stats
+    var prices = procedureData.map(function(d){ return d.average_total_payments; });
+    var averageLocalPrice = d3.mean(prices);
+    $('#average-price-local').html("$" + d3.round(averageLocalPrice, 2));
 
     // do a bar chart
-    barGraph.updateVis(data);
+    barGraph.updateVis(procedureData);
 }
 
 
