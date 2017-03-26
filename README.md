@@ -4,6 +4,10 @@
 
 We've built a web app that helps patients to compare the costs of medical procedures at hospitals in their region. By making hidden healthcare costs more transparent, we're empowering citizens to take a stand on their health and wallet.
 
+# Live demo
+
+See the app live at <http://medicompare.herokuapp.com>!
+
 # Setup
 
 Just run:
@@ -25,11 +29,9 @@ Then visit <http://localhost:3000>.
 
 # Screenshots
 
-New York:
-![Example search in New York](public/img/example-medical-search-new-york.png)
+New York: ![Example search in New York](public/img/example-medical-search-new-york.png)
 
-Silicon Valley:
-![Example search in San Jose](public/img/example-medical-search-san-jose.png)
+Silicon Valley: ![Example search in San Jose](public/img/example-medical-search-san-jose.png)
 
 # Example procedures to search
 
@@ -42,18 +44,15 @@ Procedure                                                         | Zip   | City
 195 - SIMPLE PNEUMONIA & PLEURISY W/O CC/MCC                      | 06501 | New Haven, CT | University hospitals more expensive
 207 - RESPIRATORY SYSTEM DIAGNOSIS W VENTILATOR SUPPORT 96+ HOURS | 95101 | San Jose      | Most expensive procedures, stark regional cost differences
 
-
 # Technologies
 
-* Node.js/Express
-* SQLite
-* Gulp
-* D3
-* Bootstrap
-* jQuery
-* SCSS
-
-
+- Node.js/Express
+- SQLite
+- Gulp
+- D3
+- Bootstrap
+- jQuery
+- SCSS
 
 # About Coding it Forward
 
