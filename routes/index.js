@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 
-var procedureSearch = require('../lib/procedure-search');
+var api = require('../lib/api');
 
 /* GET home page. */
 router.get('/main', function(req, res, next) {
@@ -21,7 +21,7 @@ router.get('/procedures', function(req, res, next) {
     var procedure = req.query['procedure'];
 
     // get procedure data and return once it's good
-    procedureSearch(procedure, zipcode, 25)
+    api.findNearbyProcedureData(procedure, zipcode, 25)
         .then(function(data) {
             // success
             res.send(data);
@@ -31,6 +31,32 @@ router.get('/procedures', function(req, res, next) {
             res.status(500)
                 .send(error);
         });
-})
+});
+
+// given a zipcode, returns information about its location
+router.get('/zipcode', function(req, res, next) {
+    var zipcode = req.query['zipcode'];
+
+    res.send(api.zipcodeLookup(zipcode));
+});
+
+
+// returns JSON data about the state and national average costs for a procedure
+router.get('/averages', function(req, res, next) {
+    var zipcode = req.query['zipcode'];
+    var procedure = req.query['procedure'];
+
+    api.averagePrices(procedure, zipcode)
+        .then(function(data) {
+            // success
+            res.send(data);
+        })
+        .catch(function(error) {
+            // error
+            res.status(500)
+                .send(error);
+        });
+});
+
 
 module.exports = router;

@@ -32,7 +32,7 @@ function addMarker(procedure, color) {
                 }
             });
             markers.push(marker);
-            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: $' + procedure.average_total_payments + '</div>' + '</div>';
+            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: ' + formatMoney(procedure.average_total_payments) + '</div>' + '</div>';
 
             marker.addListener('click', function(){
                 try{
@@ -54,6 +54,7 @@ function addMarker(procedure, color) {
 var barGraph;
 $(document).ready(function(){
     barGraph = new BarGraph("bar-graph");
+    $('#care-stats').hide();
 });
 
 
@@ -69,24 +70,6 @@ $('#input-zipcode')
             return true;
         });
 
-        // fire off an ajax request to get the procedure data
-        $.getJSON({
-                url: "/procedures",
-                data: {
-                    zipcode: $('#input-zipcode').val(),
-                    procedure: $('#input-procedure').val()
-                }
-            })
-            .done(function(data) {
-                // these are the nearby treatments
-                console.log(data);
-                data.forEach(function(procedure){
-                    addMarker(procedure);
-                });
-            })
-            .fail(function(error) {
-                console.error(error);
-            });
 
 function doSearch(){
     // TODO data validation
@@ -94,14 +77,14 @@ function doSearch(){
     var procedure = $('#input-procedure').val();
 
     // update the map to the zipcode where they searched from
-    geocoder.geocode( { 'address': zipcode }, function(results, status) {
-        if (status === 'OK') {
-            console.log(results[0]);
-            map.panTo(results[0].geometry.location);
-        } else {
-            console.error('Geocode error', status);
-        }
-    });
+    // geocoder.geocode( { 'address': zipcode }, function(results, status) {
+    //     if (status === 'OK') {
+    //         // TODO store the results here and share with the loadProcedureData, who wants to show info on the sidebar
+    //         map.panTo(results[0].geometry.location);
+    //     } else {
+    //         console.error('Geocode error', status);
+    //     }
+    // });
 
     // reset map - remove all markers
     markers.forEach(function(marker){
@@ -110,36 +93,63 @@ function doSearch(){
     markers = [];
 
 
+    // figure out which state and lat/long they're at
     // fire off an ajax request to get the procedure data
-    $.getJSON({
+    var locationAjax = $.getJSON({
+            url: "/zipcode",
+            data: {
+                zipcode: zipcode
+            }
+        });
+
+    // fire off an ajax request to get the procedure data
+    var procedureAjax = $.getJSON({
             url: "/procedures",
             data: {
                 zipcode: zipcode,
                 procedure: procedure
             }
-        })
-        .done(function(data) {
-            // these are the nearby treatments
-            loadProcedureData(procedure, zipcode, data);
-        })
-        .fail(function(error) {
-            console.error(error);
         });
+
+    // state/national average price data
+    var priceAjax = $.getJSON({
+        url: "/averages",
+        data: {
+            zipcode: zipcode,
+            procedure: procedure
+        }
+    });
+
+    // wait for all to resolve
+    $.when(locationAjax, procedureAjax, priceAjax).done(function(locationResult, procedureResult, priceResult){
+        // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
+        // Each argument is an array with the following structure: [ data, statusText, jqXHR ]
+        var locationData = locationResult[0];
+        var procedureData = procedureResult[0];
+        var priceData = priceResult[0];
+
+        loadProcedureData(procedure, zipcode, locationData, procedureData, priceData);
+    })
+    .fail(function(error) {
+        console.error(error);
+    });
 }
 
 /**
  * Given procedure price data, draws it on the map and in the sidebar.
  */
-function loadProcedureData(procedure, zipcode, data){
+function loadProcedureData(procedure, zipcode, location, procedureData, priceData){
     // sort procedures by cost
-    data.sort(function(a,b){
+    procedureData.sort(function(a,b){
         return a.average_total_payments - b.average_total_payments;
     });
+
+    console.log(priceData);
 
     // draw markers on map
     // determine their colors
     // first, find min/max/midpoint of prices
-    var extent = d3.extent(data.map(function(d){
+    var extent = d3.extent(procedureData.map(function(d){
         return d.average_total_payments;
     }));
     var min = extent[0];
@@ -151,6 +161,9 @@ function loadProcedureData(procedure, zipcode, data){
         .range(["green", "yellow", "red"]);
 
 
+    // update the map to the zipcode where they searched from
+    map.panTo(new google.maps.LatLng(location.latitude, location.longitude));
+
 
     // run on each data element
     var eachDataFunction = function(procedure){
@@ -160,18 +173,26 @@ function loadProcedureData(procedure, zipcode, data){
         addMarker(procedure, color);
     };
 
-    data.forEach(function(procedure, index){
+    procedureData.forEach(function(procedure, index){
         window.setTimeout(eachDataFunction.bind(null, procedure), index*500);
     });
 
     // draw in sidebar
+    $('#care-stats').show();
     $('#care-stats-procedure').html(procedure);
-    $('#care-stats-place').html(zipcode);
+    $('#care-stats-place').html(location.city + ", " + location.state);
+    $('#lookup-zip').html(zipcode);
+    $('#lookup-state').html(location.state);
+    $('#average-price-state').html(formatMoney(priceData.stateAverage));
+    $('#average-price-national').html(formatMoney(priceData.nationalAverage));
 
-
+    // care price stats
+    var localPrices = procedureData.map(function(d){ return d.average_total_payments; });
+    var averageLocalPrice = d3.mean(localPrices);
+    $('#average-price-local').html(formatMoney(averageLocalPrice));
 
     // do a bar chart
-    barGraph.updateVis(data);
+    barGraph.updateVis(procedureData);
 }
 
 
@@ -311,13 +332,13 @@ function BarGraph(container){
 BarGraph.prototype.initVis = function() {
     var vis = this;
 
-    vis.valueLabelWidth = 60; // space reserved for value labels (right)
+    vis.valueLabelWidth = 100; // space reserved for value labels (right)
     vis.barHeight = 20; // height of one bar
-    vis.barLabelWidth = 240; // space reserved for bar labels
+    vis.barLabelWidth = 300; // space reserved for bar labels
     vis.barLabelPadding = 5; // padding between bar and bar labels (left)
     vis.gridLabelHeight = 18; // space reserved for gridline labels
     vis.gridChartOffset = 3; // space between start of grid and first bar
-    vis.maxBarWidth = 100; // width of the bar with the max value
+    vis.maxBarWidth = 250; // width of the bar with the max value
 
 
     // accessor functions
@@ -384,5 +405,9 @@ BarGraph.prototype.updateVis = function(data) {
     .attr("text-anchor", "start") // text-align: right
     .attr("fill", "black")
     .attr("stroke", "none")
-    .text(function(d) { return "$" + d3.round(vis.barValue(d), 2); });
+    .text(function(d) { return formatMoney(vis.barValue(d)); });
 }
+
+
+// formats a float of money as a string
+const formatMoney = d3.format("$,.2f");
