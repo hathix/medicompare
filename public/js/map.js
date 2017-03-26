@@ -407,6 +407,11 @@ BarGraph.prototype.updateVis = function(data) {
       .attr('text-anchor', 'end')
       .text(vis.barLabel);
 
+
+  // HACK: remove old bars
+  vis.barsContainer.selectAll("rect").remove();
+  vis.barsContainer.selectAll("text").remove();
+
   // draw bars
   vis.barsContainer.selectAll("rect").data(sortedData).enter().append("rect")
     .attr('y', vis.y)
