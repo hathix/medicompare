@@ -110,14 +110,24 @@ function doSearch(){
             }
         });
 
+    // state/national average price data
+    var priceAjax = $.getJSON({
+        url: "/averages",
+        data: {
+            zipcode: zipcode,
+            procedure: procedure
+        }
+    });
+
     // wait for all to resolve
-    $.when(locationAjax, procedureAjax).done(function(locationResult, procedureResult){
+    $.when(locationAjax, procedureAjax, priceAjax).done(function(locationResult, procedureResult, priceResult){
         // a1 and a2 are arguments resolved for the page1 and page2 ajax requests, respectively.
         // Each argument is an array with the following structure: [ data, statusText, jqXHR ]
         var locationData = locationResult[0];
         var procedureData = procedureResult[0];
+        var priceData = priceResult[0];
 
-        loadProcedureData(procedure, zipcode, locationData, procedureData);
+        loadProcedureData(procedure, zipcode, locationData, procedureData, priceData);
     })
     .fail(function(error) {
         console.error(error);
@@ -127,11 +137,13 @@ function doSearch(){
 /**
  * Given procedure price data, draws it on the map and in the sidebar.
  */
-function loadProcedureData(procedure, zipcode, location, procedureData){
+function loadProcedureData(procedure, zipcode, location, procedureData, priceData){
     // sort procedures by cost
     procedureData.sort(function(a,b){
         return a.average_total_payments - b.average_total_payments;
     });
+
+    console.log(priceData);
 
     // draw markers on map
     // determine their colors
@@ -169,11 +181,13 @@ function loadProcedureData(procedure, zipcode, location, procedureData){
     $('#care-stats-place').html(location.city + ", " + location.state);
     $('#lookup-zip').html(zipcode);
     $('#lookup-state').html(location.state);
+    $('#average-price-state').html(formatMoney(priceData.stateAverage));
+    $('#average-price-national').html(formatMoney(priceData.nationalAverage));
 
     // care price stats
-    var prices = procedureData.map(function(d){ return d.average_total_payments; });
-    var averageLocalPrice = d3.mean(prices);
-    $('#average-price-local').html("$" + d3.round(averageLocalPrice, 2));
+    var localPrices = procedureData.map(function(d){ return d.average_total_payments; });
+    var averageLocalPrice = d3.mean(localPrices);
+    $('#average-price-local').html(formatMoney(averageLocalPrice));
 
     // do a bar chart
     barGraph.updateVis(procedureData);
@@ -389,5 +403,12 @@ BarGraph.prototype.updateVis = function(data) {
     .attr("text-anchor", "start") // text-align: right
     .attr("fill", "black")
     .attr("stroke", "none")
-    .text(function(d) { return "$" + d3.round(vis.barValue(d), 2); });
+    .text(function(d) { return formatMoney(vis.barValue(d)); });
+}
+
+
+
+// formats a float of money as a string
+function formatMoney(amount){
+    return "$" + d3.round(amount, 2);
 }
