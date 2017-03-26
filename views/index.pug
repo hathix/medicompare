@@ -8,13 +8,15 @@ block content
                 span Medicompare
         p(class='lead') Search for a medical procedure and your zip code to find the cheapest hospitals nearby.
         div(class='row')
-            div(class='form-group col-sm-5')
+            div(class='form-group col-sm-5 col-xs-6')
                 label(class='sr-only', for='input-procedure') Procedure
                 select(class='form-control', id='input-procedure', name='input-procedure', placeholder='Medical Procedure' rquired)        
-            div(class='form-group col-sm-5')
+            div(class='form-group col-sm-5 col-xs-4')
                 label(class='sr-only', for='zip') Zip Code
                 input(type='zipcode', class='form-control', id='input-zipcode', name='zipcode', placeholder='Zip Code' required)
-            button(class='btn btn-primary glyphicon glyphicon-search col-sm-2' id='search-submit')
+            button(class='btn btn-primary col-sm-2 col-xs-2' id='search-submit')
+                span(class='glyphicon glyphicon-search')
+                span &nbsp; Search
         if {zipcode}
             p #{zipcode}
         if {procedure}
