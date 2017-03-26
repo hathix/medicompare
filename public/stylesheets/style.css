@@ -1,3 +1,10 @@
+html {
+  position: relative;
+  min-height: 100%; }
+
+body {
+  margin-bottom: 80px !important; }
+
 .title-container {
   text-align: center; }
 
@@ -23,5 +30,14 @@ h1 {
   margin: 1px 0;
   overflow: hidden;
   background-color: #e5e5e5; }
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0 !important; }
 
 /*# sourceMappingURL=style.css.map */

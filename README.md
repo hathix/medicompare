@@ -1,4 +1,6 @@
-# medicompare
+# Medicompare
+> by Neel Mehta and Allison Kao
+
 Helping patients compare care and price of medical procedures in their area
 
 ## Running
