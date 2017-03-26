@@ -26,6 +26,7 @@
     "zipcodes": "^2.1.0"
   },
   "devDependencies": {
+    "geocoder": "^0.2.3",
     "nodemon": "^1.11.0"
   }
 }

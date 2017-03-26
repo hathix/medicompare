@@ -32,7 +32,7 @@ function addMarker(procedure, color) {
                 }
             });
             markers.push(marker);
-            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: $' + procedure.average_total_payments + '</div>' + '</div>';
+            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: ' + formayMoney(procedure.average_total_payments) + '</div>' + '</div>';
 
             marker.addListener('click', function(){
                 try{
