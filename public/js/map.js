@@ -32,7 +32,7 @@ function addMarker(procedure, color) {
                 }
             });
             markers.push(marker);
-            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: ' + formayMoney(procedure.average_total_payments) + '</div>' + '</div>';
+            var contentString = '<div id="info">' + '<div class="infoTitle" style="font-weight:bold">' + procedure.provider_name + '</div>' + '<div class="infoAddress">' + address + '</div>' + '<div class="infoPrice">' + 'Cost: ' + formatMoney(procedure.average_total_payments) + '</div>' + '</div>';
 
             marker.addListener('click', function(){
                 try{
@@ -54,6 +54,7 @@ function addMarker(procedure, color) {
 var barGraph;
 $(document).ready(function(){
     barGraph = new BarGraph("bar-graph");
+    $('#care-stats').hide();
 });
 
 
@@ -177,6 +178,7 @@ function loadProcedureData(procedure, zipcode, location, procedureData, priceDat
     });
 
     // draw in sidebar
+    $('#care-stats').show();
     $('#care-stats-procedure').html(procedure);
     $('#care-stats-place').html(location.city + ", " + location.state);
     $('#lookup-zip').html(zipcode);
@@ -330,13 +332,13 @@ function BarGraph(container){
 BarGraph.prototype.initVis = function() {
     var vis = this;
 
-    vis.valueLabelWidth = 60; // space reserved for value labels (right)
+    vis.valueLabelWidth = 100; // space reserved for value labels (right)
     vis.barHeight = 20; // height of one bar
-    vis.barLabelWidth = 240; // space reserved for bar labels
+    vis.barLabelWidth = 300; // space reserved for bar labels
     vis.barLabelPadding = 5; // padding between bar and bar labels (left)
     vis.gridLabelHeight = 18; // space reserved for gridline labels
     vis.gridChartOffset = 3; // space between start of grid and first bar
-    vis.maxBarWidth = 100; // width of the bar with the max value
+    vis.maxBarWidth = 250; // width of the bar with the max value
 
 
     // accessor functions
