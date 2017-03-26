@@ -25,7 +25,7 @@ block content
                 div(id='gMap', style="width:100%;height:400px;")
             div(class='col-sm-6 col-md-4')
                 div(id='care-stats')
-                    h3(id='care-stats-primary')
+                    h4(id='care-stats-primary')
                         span Cost of&nbsp;
                         span(id='care-stats-procedure' class='text-info')
                         span &nbsp;near&nbsp;
@@ -40,6 +40,24 @@ block content
                         tr
                             td(class='') National average
                             td(class='',  id='average-price-national')
+                    div(class='panel panel-success')
+                        div(class='panel-heading')
+                            h3(class='panel-title') Cheapest: #[span(id='cheapest-price')]
+                        div(class='panel-body')
+                            p
+                                strong(id='cheapest-name')
+                                br
+                                span(id='cheapest-address')
+                    div(class='panel panel-danger')
+                        div(class='panel-heading')
+                            h3(class='panel-title') Priciest: #[span(id='priciest-price')]
+                        div(class='panel-body')
+                            p
+                                strong(id='priciest-name')
+                                br
+                                span(id='priciest-address')
+                                
+                                
                     //- table
                     //-     tr
                     //-         td(class='text-right') Min

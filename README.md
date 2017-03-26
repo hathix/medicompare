@@ -10,3 +10,7 @@ nodemon
 ```
 
 Then visit <http://localhost:3000>.
+
+# Screenshot
+
+![Example search](public/img/example-medical-search.png)
