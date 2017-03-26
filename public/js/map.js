@@ -398,7 +398,8 @@ BarGraph.prototype.updateVis = function(data) {
     vis.x.domain([0, d3.max(sortedData, vis.barValue)]).range([0, vis.maxBarWidth]);
 
     // bar labels
-    vis.labelsContainer.selectAll('text').data(sortedData).exit();
+    vis.labelsContainer.selectAll('text').remove();
+
     vis.labelsContainer.selectAll('text').data(sortedData).enter().append('text')
       .attr('y', vis.yText)
       .attr('stroke', 'none')
