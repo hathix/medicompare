@@ -18,7 +18,7 @@ function initMap() {
 
 
 function addMarker(procedure, color) {
-    var address = procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
+    var address = addressOfProcedure(procedure);
     geocoder.geocode( { 'address': address }, function(results, status) {
         if (status === 'OK') {
             console.log(procedure.provider_name);
@@ -144,7 +144,12 @@ function loadProcedureData(procedure, zipcode, location, procedureData, priceDat
         return a.average_total_payments - b.average_total_payments;
     });
 
-    console.log(priceData);
+
+    // fix up some of the data. e.g. zipcodes are messed up ("2138" instead of "02138")
+    procedureData.forEach(function(procedure) {
+		// pad zipcode to 5 digits
+		procedure.zipcode = ("00000" + procedure.zipcode).slice(-5);
+	});
 
     // draw markers on map
     // determine their colors
@@ -166,6 +171,7 @@ function loadProcedureData(procedure, zipcode, location, procedureData, priceDat
 
 
     // run on each data element
+    // namely, draw a pin
     var eachDataFunction = function(procedure){
         // use the scale to determine the pin color
         var color = colorScale(procedure.average_total_payments).replace("#", "");
@@ -185,6 +191,17 @@ function loadProcedureData(procedure, zipcode, location, procedureData, priceDat
     $('#lookup-state').html(location.state);
     $('#average-price-state').html(formatMoney(priceData.stateAverage));
     $('#average-price-national').html(formatMoney(priceData.nationalAverage));
+
+	// find cheapest. procedure data is already sorted
+	var cheapest = procedureData[0];
+	$('#cheapest-name').html(cheapest.provider_name);
+	$('#cheapest-address').html(addressOfProcedure(cheapest));
+	$('#cheapest-price').html(formatMoney(cheapest.average_total_payments));
+
+	var priciest = procedureData[procedureData.length - 1];
+	$('#priciest-name').html(priciest.provider_name);
+	$('#priciest-address').html(addressOfProcedure(priciest));
+	$('#priciest-price').html(formatMoney(priciest.average_total_payments));
 
     // care price stats
     var localPrices = procedureData.map(function(d){ return d.average_total_payments; });
@@ -381,6 +398,7 @@ BarGraph.prototype.updateVis = function(data) {
     vis.x.domain([0, d3.max(sortedData, vis.barValue)]).range([0, vis.maxBarWidth]);
 
     // bar labels
+    vis.labelsContainer.selectAll('text').data(sortedData).exit();
     vis.labelsContainer.selectAll('text').data(sortedData).enter().append('text')
       .attr('y', vis.yText)
       .attr('stroke', 'none')
@@ -411,3 +429,7 @@ BarGraph.prototype.updateVis = function(data) {
 
 // formats a float of money as a string
 const formatMoney = d3.format("$,.2f");
+
+function addressOfProcedure(procedure) {
+	return procedure.street_address + ", " + procedure.city + ", " + procedure.state + " " + procedure.zipcode;
+}
