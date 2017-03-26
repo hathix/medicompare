@@ -44,9 +44,13 @@ Procedure                                                         | Zip   | City
 195 - SIMPLE PNEUMONIA & PLEURISY W/O CC/MCC                      | 06501 | New Haven, CT | University hospitals more expensive
 207 - RESPIRATORY SYSTEM DIAGNOSIS W VENTILATOR SUPPORT 96+ HOURS | 95101 | San Jose      | Most expensive procedures, stark regional cost differences
 
+# Data
+
+We used a dataset of over [160,000 medical procedures from across the country](https://www.cms.gov/Research-Statistics-Data-and-Systems/Statistics-Trends-and-Reports/Medicare-Provider-Charge-Data/Physician-and-Other-Supplier.html), compiled by the Centers for Medicare and Medicaid Services. You'll find it in the /data folder.
+
 # Technologies
 
-- Node.js/Express
+- Node.js & Express
 - SQLite
 - Gulp
 - D3
